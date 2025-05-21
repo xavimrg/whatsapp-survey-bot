@@ -1,8 +1,6 @@
-import makeWaSocket, {
-  useSingleFileAuthState,
-  DisconnectReason
-} from "baileys";
-import P from "pino";
+import pkg from 'baileys';
+const { makeWaSocket, useSingleFileAuthState, DisconnectReason } = pkg;
+import P from 'pino';
 
 const SESSION_FILE_PATH = '/app/session/session.json'; // Aquí usamos el volumen persistente
 
@@ -20,14 +18,14 @@ async function startSock() {
   sock.ev.on('connection.update', (update) => {
     const { connection, lastDisconnect } = update;
 
-    if(connection === 'close') {
+    if (connection === 'close') {
       const statusCode = lastDisconnect?.error?.output?.statusCode;
       const shouldReconnect = (statusCode !== DisconnectReason.loggedOut);
       console.log('connection closed due to', lastDisconnect?.error, ', reconnecting:', shouldReconnect);
-      if(shouldReconnect) {
+      if (shouldReconnect) {
         startSock();
       }
-    } else if(connection === 'open') {
+    } else if (connection === 'open') {
       console.log('✅ Bot conectado correctamente a WhatsApp.');
     }
   });
