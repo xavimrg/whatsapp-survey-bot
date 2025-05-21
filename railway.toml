@@ -1,0 +1,8 @@
+[[services]]
+name = "storage-volume-whatsapp-bot"
+path = "."
+start = "npm run start"
+
+  [[services.volumes]]
+  name = "session-data"
+  mount_path = "/app/session"
