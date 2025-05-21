@@ -1,4 +1,4 @@
-import { makeWASocket, useSingleFileAuthState, DisconnectReason } from '@adiwajshing/baileys';
+import { makeWASocket, useSingleFileAuthState, DisconnectReason } from 'baileys';
 import P from 'pino';
 
 const SESSION_FILE_PATH = process.env.RAILWAY ? '/app/session/session.json' : './session/session.json';
