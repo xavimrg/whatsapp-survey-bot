@@ -1,13 +1,12 @@
-import pkg from '@whiskeysockets/baileys';
-const { makeWaSocket, useSingleFileAuthState, DisconnectReason } = pkg;
+import { makeWASocket, useSingleFileAuthState, DisconnectReason } from 'baileys';
 import P from 'pino';
 
-const SESSION_FILE_PATH = '/app/session/session.json'; // Aquí usamos el volumen persistente
+const SESSION_FILE_PATH = '/app/session/session.json';
 
 const { state, saveState } = useSingleFileAuthState(SESSION_FILE_PATH);
 
 async function startSock() {
-  const sock = makeWaSocket({
+  const sock = makeWASocket({
     logger: P({ level: 'info' }),
     printQRInTerminal: true,
     auth: state,
@@ -39,4 +38,4 @@ async function startSock() {
   return sock;
 }
 
-startSock().catch(err => console.log("error starting sock:", err));
+startSock().catch(err => console.log("❌ error starting sock:", err));
