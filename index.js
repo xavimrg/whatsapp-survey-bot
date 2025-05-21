@@ -1,57 +1,52 @@
-import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
-import { startSchedule } from './scheduler.js';
-import * as dotenv from 'dotenv';
-import qrcode from 'qrcode-terminal';
+import makeWaSocket, {
+  useSingleFileAuthState,
+  DisconnectReason
+} from "@adiwajshing/baileys";
+import { Boom } from "@hapi/boom";
+import P from "pino";
 
-dotenv.config();
+// Ruta donde guardaremos la sesión de forma persistente
+const SESSION_FILE_PATH = '/mnt/storage/session.json';
 
-const getGroupJIDs = async (sock) => {
+// Cargamos o inicializamos el estado de autenticación
+const { state, saveState } = useSingleFileAuthState(SESSION_FILE_PATH);
+
+async function startSock() {
+  const sock = makeWaSocket({
+    logger: P({ level: 'info' }),
+    printQRInTerminal: true,
+    auth: state,
+  });
+
+  sock.ev.on('creds.update', saveState);
+
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
+    if(connection === 'close') {
+      const shouldReconnect = (lastDisconnect.error && 
+        (lastDisconnect.error as Boom).output?.statusCode !== DisconnectReason.loggedOut);
+      console.log('connection closed due to', lastDisconnect.error, ', reconnecting:', shouldReconnect);
+      // Intentar reconectar solo si no fue logout
+      if(shouldReconnect) {
+        startSock();
+      }
+    } else if(connection === 'open') {
+      console.log('✅ Bot conectado correctamente a WhatsApp.');
+    }
+  });
+
+  sock.ev.on('messages.upsert', async (m) => {
+    // Aquí va el código para manejar mensajes entrantes si quieres
+  });
+
+  // Listar grupos
   const groups = await sock.groupFetchAllParticipating();
   console.log("📢 Listado de grupos disponibles:");
-  for (const id in groups) {
-    const name = groups[id].subject;
-    console.log(`📛 Grupo: ${name} → JID: ${id}`);
-  }
-};
-
-const startBot = async () => {
-  const { state, saveCreds } = await useMultiFileAuthState('./auth');
-
-  const sock = makeWASocket({
-    auth: state,
-    browser: ['Ubuntu', 'Chrome', '22.04.4'],
+  Object.entries(groups).forEach(([jid, group]) => {
+    console.log(`📛 Grupo: ${group.subject} → JID: ${jid}`);
   });
 
-  sock.ev.on('creds.update', saveCreds);
+  return sock;
+}
 
-  sock.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect, qr } = update;
-
-    if (qr) {
-      qrcode.generate(qr, { small: true });
-    }
-
-    if (connection === 'open') {
-      console.log('✅ Bot conectado correctamente a WhatsApp.');
-
-      await getGroupJIDs(sock);
-
-      // Aquí se lee el GROUP_ID desde .env
-      const groupJID = process.env.GROUP_ID;
-
-      if (!groupJID) {
-        console.error('❌ ERROR: La variable de entorno GROUP_ID no está definida en .env');
-        process.exit(1);
-      }
-
-      // Iniciar las encuestas con el socket y el grupo destino
-      startSchedule(sock, groupJID);
-
-    } else if (connection === 'close') {
-      console.log('❌ Conexión cerrada. Reconectando...');
-      startBot();
-    }
-  });
-};
-
-startBot();
+startSock().catch(err => console.log("error starting sock:", err));
