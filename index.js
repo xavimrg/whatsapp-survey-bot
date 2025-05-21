@@ -1,6 +1,8 @@
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import { startSchedule } from './scheduler.js';
 import * as dotenv from 'dotenv';
+import qrcode from 'qrcode-terminal'; // 👈 Asegúrate de tener esta librería instalada
+
 dotenv.config();
 
 const getGroupJIDs = async (sock) => {
@@ -14,24 +16,31 @@ const getGroupJIDs = async (sock) => {
 
 const startBot = async () => {
   const { state, saveCreds } = await useMultiFileAuthState('./auth');
+
   const sock = makeWASocket({
     auth: state,
-    printQRInTerminal: true,
+    browser: ['Ubuntu', 'Chrome', '22.04.4'],
   });
 
   sock.ev.on('creds.update', saveCreds);
 
   sock.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect } = update;
+    const { connection, lastDisconnect, qr } = update;
+
+    if (qr) {
+      // ✅ Muestra el código QR en la terminal
+      qrcode.generate(qr, { small: true });
+    }
+
     if (connection === 'open') {
       console.log('✅ Bot conectado correctamente a WhatsApp.');
-      
+
       // 👇 Mostrar los grupos y sus JID
       await getGroupJIDs(sock);
-      
-      // 👇 Comentar esta línea temporalmente si no quieres que se activen las encuestas aún
+
+      // 👇 Descomenta esta línea si quieres iniciar las encuestas
       // startSchedule(sock);
-      
+
     } else if (connection === 'close') {
       console.log('❌ Conexión cerrada. Reconectando...');
       startBot();
