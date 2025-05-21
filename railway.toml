@@ -1,8 +1,10 @@
-[[services]]
-name = "storage-volume-whatsapp-bot"
-path = "."
-start = "npm run start"
+[build]
+  # Build command (opcional si usas nixpacks)
+  # build = "npm install"
 
-  [[services.volumes]]
-  name = "session-data"
-  mount_path = "/app/session"
+[deploy]
+  start = "npm run start"  # o "node index.js" si ese es tu comando
+
+[[mounts]]
+  service = "storage-volume whastapp bot"  # El nombre exacto de tu servicio de volumen en Railway
+  mount_path = "/app/session"               # Debe coincidir con el path usado en index.js
