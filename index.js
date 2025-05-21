@@ -1,4 +1,4 @@
-import pkg from 'baileys';
+import pkg from '@whiskeysockets/baileys';
 const { makeWaSocket, useSingleFileAuthState, DisconnectReason } = pkg;
 import P from 'pino';
 
