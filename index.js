@@ -1,7 +1,7 @@
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import { startSchedule } from './scheduler.js';
 import * as dotenv from 'dotenv';
-import qrcode from 'qrcode-terminal'; // 👈 Asegúrate de tener esta librería instalada
+import qrcode from 'qrcode-terminal';
 
 dotenv.config();
 
@@ -28,18 +28,24 @@ const startBot = async () => {
     const { connection, lastDisconnect, qr } = update;
 
     if (qr) {
-      // ✅ Muestra el código QR en la terminal
       qrcode.generate(qr, { small: true });
     }
 
     if (connection === 'open') {
       console.log('✅ Bot conectado correctamente a WhatsApp.');
 
-      // 👇 Mostrar los grupos y sus JID
       await getGroupJIDs(sock);
 
-      // 👇 Descomenta esta línea si quieres iniciar las encuestas
-      // startSchedule(sock);
+      // Aquí se lee el GROUP_ID desde .env
+      const groupJID = process.env.GROUP_ID;
+
+      if (!groupJID) {
+        console.error('❌ ERROR: La variable de entorno GROUP_ID no está definida en .env');
+        process.exit(1);
+      }
+
+      // Iniciar las encuestas con el socket y el grupo destino
+      startSchedule(sock, groupJID);
 
     } else if (connection === 'close') {
       console.log('❌ Conexión cerrada. Reconectando...');
