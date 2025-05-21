@@ -2,11 +2,7 @@ import pkg from 'baileys';
 const { makeWASocket, useSingleFileAuthState, DisconnectReason } = pkg;
 import P from 'pino';
 
-
-const { makeWASocket, useSingleFileAuthState, DisconnectReason } = pkg;
-
-// Usa ruta relativa para local y absoluta para Railway
-const SESSION_FILE_PATH = process.env.RAILWAY_ENVIRONMENT ? '/app/session/session.json' : './session/session.json';
+const SESSION_FILE_PATH = './session/session.json'; // ⚠️ Usa './' para local, '/app/' para Railway
 
 const { state, saveState } = useSingleFileAuthState(SESSION_FILE_PATH);
 
@@ -24,8 +20,8 @@ async function startSock() {
 
     if (connection === 'close') {
       const statusCode = lastDisconnect?.error?.output?.statusCode;
-      const shouldReconnect = (statusCode !== DisconnectReason.loggedOut);
-      console.log('connection closed due to', lastDisconnect?.error, ', reconnecting:', shouldReconnect);
+      const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+      console.log('🔌 Conexión cerrada por:', lastDisconnect?.error, ', reconectando:', shouldReconnect);
       if (shouldReconnect) {
         startSock();
       }
@@ -43,4 +39,4 @@ async function startSock() {
   return sock;
 }
 
-startSock().catch(err => console.log("❌ error starting sock:", err));
+startSock().catch(err => console.error("❌ Error al iniciar el bot:", err));
