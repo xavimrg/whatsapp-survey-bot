@@ -2,15 +2,13 @@
   "name": "whatsapp-survey-bot",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
-"dependencies": {
-  "baileys": "^6.7.0",
-  "dotenv": "^16.0.3",
-  "node-cron": "^3.0.2",
-  "pino": "^8.0.0"
-}
-
+  "dependencies": {
+    "baileys": "^4.4.0",
+    "dotenv": "^16.0.3",
+    "node-cron": "^3.0.2",
+    "pino": "^8.0.0"
+  }
 }
