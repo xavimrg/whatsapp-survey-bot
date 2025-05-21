@@ -4,7 +4,8 @@ import makeWaSocket, {
 } from "@adiwajshing/baileys";
 import P from "pino";
 
-const SESSION_FILE_PATH = '/mnt/storage/session.json';
+const SESSION_FILE_PATH = '/app/session/session.json'; // Aquí usamos el volumen persistente
+
 const { state, saveState } = useSingleFileAuthState(SESSION_FILE_PATH);
 
 async function startSock() {
@@ -22,7 +23,7 @@ async function startSock() {
     if(connection === 'close') {
       const statusCode = lastDisconnect?.error?.output?.statusCode;
       const shouldReconnect = (statusCode !== DisconnectReason.loggedOut);
-      console.log('connection closed due to', lastDisconnect.error, ', reconnecting:', shouldReconnect);
+      console.log('connection closed due to', lastDisconnect?.error, ', reconnecting:', shouldReconnect);
       if(shouldReconnect) {
         startSock();
       }
