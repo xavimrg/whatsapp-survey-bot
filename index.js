@@ -1,7 +1,7 @@
 import makeWaSocket, {
   useSingleFileAuthState,
   DisconnectReason
-} from "@adiwajshing/baileys";
+} from "baileys";
 import P from "pino";
 
 const SESSION_FILE_PATH = '/app/session/session.json'; // Aquí usamos el volumen persistente
