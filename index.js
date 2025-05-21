@@ -1,10 +1,13 @@
-import pkg from 'baileys';
-const { makeWASocket, useSingleFileAuthState, DisconnectReason } = pkg;
+import { makeWASocket, DisconnectReason } from 'baileys';
 import P from 'pino';
+
+// Importa useSingleFileAuthState de su módulo específico
+import { useSingleFileAuthState } from '@adiwajshing/baileys/lib/Authentication/index.js';
 
 const SESSION_FILE_PATH = process.env.RAILWAY ? '/app/session/session.json' : './session/session.json';
 
 const { state, saveState } = useSingleFileAuthState(SESSION_FILE_PATH);
+
 
 async function startSock() {
   const sock = makeWASocket({
