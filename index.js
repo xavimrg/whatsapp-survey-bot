@@ -1,7 +1,10 @@
-import { makeWASocket, useSingleFileAuthState, DisconnectReason } from 'baileys';
+import pkg from 'baileys';
 import P from 'pino';
 
-const SESSION_FILE_PATH = '/app/session/session.json';
+const { makeWASocket, useSingleFileAuthState, DisconnectReason } = pkg;
+
+// Usa ruta relativa para local y absoluta para Railway
+const SESSION_FILE_PATH = process.env.RAILWAY_ENVIRONMENT ? '/app/session/session.json' : './session/session.json';
 
 const { state, saveState } = useSingleFileAuthState(SESSION_FILE_PATH);
 
